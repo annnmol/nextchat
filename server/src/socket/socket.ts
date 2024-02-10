@@ -8,9 +8,22 @@ import { redisPubClient, redisSubClient } from "../lib/redis";
 const initializeSocketIO = (io: Server) => {
   console.log("initializeSocketIO fn");
 
+
+  redisSubClient.subscribe(SOCKET_CONNECTION_TYPES.AGENT_CHAT);
+  redisSubClient.on("message", (channel, message) => {
+    console.log(`Received ${message} from ${channel}`);
+    if (channel === SOCKET_CONNECTION_TYPES.AGENT_CHAT) {
+
+      // io.emit(SOCKET_CONNECTION_TYPES.AGENT_CHAT, message);
+    }
+  });
+
   return io.on(SOCKET_CONNECTION_TYPES.CONNECT, (socket: Socket) => {
     try {
+      console.warn(`${socket.data.connection_type} connected:`, socket?.id,);
       startSocketListeners(socket, io);
+
+
     } catch (error) {
       handleSocketError(socket, io, error);
     }
@@ -26,8 +39,9 @@ const startSocketListeners = (socket: Socket, io: Server) => {
     SOCKET_CONNECTION_TYPES.AGENT_CHAT,
     async (data: any) => {
 
-      console.log(`🚀 ~ file: socket.ts:43 ~ data:`, data);
-
+      // publish this message to redis
+      await redisPubClient.publish(SOCKET_CONNECTION_TYPES.AGENT_CHAT, JSON.stringify({ data }));
+      io.emit(SOCKET_CONNECTION_TYPES.AGENT_CHAT, JSON.stringify({ data }));
     }
   );
 

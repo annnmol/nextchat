@@ -1,6 +1,7 @@
 import { type ClassValue, clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
 import qs from "query-string";
+import { toast } from "sonner";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -112,6 +113,11 @@ export function formatPrice(
 
 export const handleError = (error: unknown) => {
   console.error({ error });
+  toast.error("Unable to send message", {
+    description: typeof error === "string" ? error : JSON.stringify(error) || "An error occurred",
+    position: "top-center",
+    duration: 5000
+  });
   throw new Error(typeof error === "string" ? error : JSON.stringify(error));
 };
 

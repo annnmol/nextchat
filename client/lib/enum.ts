@@ -75,13 +75,3 @@ export enum SOCKET_CONNECTION_TYPES {
     CUSTOM = "CUSTOM",
     LIVECHAT = "LIVECHAT",
   }
-
-  export interface IMessage {
-    id: string;
-    session_id: string;
-    type: string;
-    value: string;
-    mediaUrl: string;
-    senderId: string;
-    seen: boolean;
-  }

@@ -8,8 +8,6 @@ const REDIS_PORT = Number(process.env.REDIS_PORT) ?? 6379;
 const REDIS_USERNAME = process.env.REDIS_USERNAME ?? "";
 const REDIS_PASSWORD = process.env.REDIS_PASSWORD ?? "";
 
-// console.log("REDIS_HOST", REDIS_HOST, REDIS_PORT, REDIS_USERNAME, REDIS_PASSWORD);
-
 // let cached = (global as any).redis || { conn: null, promise: null };
 
 // export const connectToRedis = async () => {
@@ -44,7 +42,15 @@ export const redisPubClient = new Redis({
     port: REDIS_PORT,
     username: REDIS_USERNAME,
     password: REDIS_PASSWORD,
+    maxRetriesPerRequest: 100,
+}).on("error", (error) => { console.error("Redis Pub Error", error); });
+export const redisSubClient = new Redis({
+    host: REDIS_HOST,
+    port: REDIS_PORT,
+    username: REDIS_USERNAME,
+    password: REDIS_PASSWORD,
+    maxRetriesPerRequest: 100,
 }).on("error", (error) => { console.error("Redis Pub Error", error); });
 
 // Export the client and the adapter
-export const redisSubClient = redisPubClient.duplicate();
+// export const redisSubClient = redisPubClient.duplicate();
