@@ -14,6 +14,7 @@ export const healthCheckLogging = (request: Request, response: Response) => {
         `[Health Check] ---Server is running at PORT: ${PORT}`
     );
     response.send("Hello World!");
+    response.end();
 };
 
 export const errorHandlingLogging = (request: Request, response: Response) => {

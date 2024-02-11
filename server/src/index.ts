@@ -11,10 +11,14 @@ import { errorHandlingLogging, healthCheckLogging, incomingRequestLogging } from
 import { SOCKET_DEFAULT_OPTIONS } from './socket/contants';
 import socketIOMiddleware from './middleware/socketMiddleware';
 import apiMiddleware from './middleware/middleware';
-import conversationRouter from "./routes/conversation";
+import conversationRouter from "./routes/conversation.routes";
 import { initializeSocketIO } from './socket/socket';
 import { redisPubClient, redisSubClient } from './lib/redis';
+import connectToMongoDB from './lib/mongoDB';
+import authRouter from './routes/auth.routes';
 
+
+dotenv.config();
 
 dotenv.config();
 
@@ -27,11 +31,8 @@ const app = express();
 const httpServer = http.createServer(app);
 
 app.use(cors());
-app.use(express.json());
+app.use(express.json()); // to parse the incoming requests with JSON payloads (from req.body)
 app.use(bodyParser.json());
-
-// Health check endpoint
-app.get("/health-check", healthCheckLogging);
 
 //* intialize socket socket server *//
 const io: Server = new Server(httpServer, SOCKET_DEFAULT_OPTIONS);
@@ -39,13 +40,13 @@ const io: Server = new Server(httpServer, SOCKET_DEFAULT_OPTIONS);
 //* using set method to mount the `io` instance on the app to avoid usage of `global` variable
 app.set("io", io);
 
-// middlewares
-app.use(apiMiddleware);
-
 // Apply Socket.IO middleware
 io.use((socket, next) => {
     socketIOMiddleware(socket, next);
 });
+
+// middlewares
+// app.use(apiMiddleware);
 
 /** Log the incoming request */
 app.use(incomingRequestLogging);
@@ -55,17 +56,23 @@ io.adapter(createAdapter(redisPubClient, redisSubClient));
 
 
 
+// Health check endpoint
+app.get("/api/health-check", healthCheckLogging);
+
 // routes
+app.use("/api/auth", authRouter);
 app.use("/api/v1/conversation", conversationRouter);
 
 /** Route Error handling */
 app.use(errorHandlingLogging);
 
+
 //app start
 httpServer.listen(PORT, () => {
+    connectToMongoDB();
     console.info(`Server is running at PORT: ${PORT}`);
     // Start the server and initialize Socket.IO
-    initializeSocketIO(io);
+    // initializeSocketIO(io);
 });
 
 export default app;
