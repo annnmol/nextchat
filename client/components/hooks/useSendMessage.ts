@@ -3,6 +3,7 @@ import { useShallow } from "zustand/react/shallow";
 
 import { handleError } from "@/lib/utils";
 import useStore from "@/zustand";
+import { DEFAULT_HEADERS } from "@/lib/network";
 
 const useSendMessage = () => {
 	const [loading, setLoading] = useState(false);
@@ -13,9 +14,7 @@ const useSendMessage = () => {
 		try {
 			const res = await fetch(`/api/messages/send/${id}`, {
 				method: "POST",
-				headers: {
-					"Content-Type": "application/json",
-				},
+				headers: DEFAULT_HEADERS,
 				body: JSON.stringify({ message }),
 			});
 			const data = await res.json();

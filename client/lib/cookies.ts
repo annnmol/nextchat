@@ -6,7 +6,8 @@ export async function setCookie(key: string, value: any) {
   cookies().set(key, value, { expires: Date.now() - oneDay });
 }
 export async function getCookie(key: string) {
-  cookies().get(key);
+  const result = cookies().get(key);
+  return result;
 }
 
 export async function removeCookie(key: string) {
